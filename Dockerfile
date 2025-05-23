@@ -20,17 +20,17 @@ RUN apt-get update && \
 ENV N8N_VERSION=1.93.0
 RUN npm install -g n8n@${N8N_VERSION} && npm cache clean --force
 
-# Устанавливаем ноду Telepilot
+# Рабочая директория для установки Telepilot
 USER node
-WORKDIR /home/node/.n8n
+WORKDIR /home/node/telepilot-nodes
 
-# Установка зависимостей проекта
+# Инициализация npm и установка Telepilot
 RUN npm init -y
 RUN npm install @telepilotco/n8n-nodes-telepilot
 
-# Открываем порт
-EXPOSE 5678
+# Копируем node_modules в .n8n/nodes
+RUN mkdir -p /home/node/.n8n/nodes && \
+    cp -R node_modules /home/node/.n8n/nodes/
 
-# Запуск от имени node с tini
-ENTRYPOINT ["tini", "--"]
-CMD ["n8n"]
+# Скачиваем TDLib бинарник вручную
+RUN mkdir -p /home/node/.n8n/nodes/node_modules/@telepilotco/tdlib-binaries-prebuilt/prebui_
