@@ -1,20 +1,36 @@
 FROM node:18-bookworm
 
-# Устанавливаем tini (инициатор) для корректной обработки сигналов и процессов
-RUN apt-get update && apt-get install -y --no-install-recommends tini && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Устанавливаем зависимости
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    tini \
+    curl \
+    unzip \
+    ca-certificates \
+    libmagic1 \
+    ffmpeg \
+    libssl-dev \
+    zlib1g-dev \
+    libpq-dev \
+    build-essential \
+    git \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем n8n определённой версии
+# Установка n8n
 ENV N8N_VERSION=1.93.0
 RUN npm install -g n8n@${N8N_VERSION} && npm cache clean --force
 
-# Открываем порт для UI n8n
+# Устанавливаем ноду Telepilot
+USER node
+WORKDIR /home/node/.n8n
+
+# Установка зависимостей проекта
+RUN npm init -y
+RUN npm install @telepilotco/n8n-nodes-telepilot
+
+# Открываем порт
 EXPOSE 5678
 
-# Запускаем процесс от непривилегированного пользователя node
-USER node
-
-# Используем tini в качестве entrypoint
+# Запуск от имени node с tini
 ENTRYPOINT ["tini", "--"]
-
-# Запуск n8n по умолчанию
 CMD ["n8n"]
