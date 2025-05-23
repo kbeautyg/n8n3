@@ -1,21 +1,20 @@
-FROM n8nio/n8n:latest
+FROM node:18-slim
 
-ARG PGPASSWORD
-ARG PGHOST
-ARG PGPORT
-ARG PGDATABASE
-ARG PGUSER
+# Устанавливаем tini (инициатор) для корректной обработки сигналов и процессов
+RUN apt-get update && apt-get install -y --no-install-recommends tini && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ENV DB_TYPE=postgresdb
-ENV DB_POSTGRESDB_DATABASE=$PGDATABASE
-ENV DB_POSTGRESDB_HOST=$PGHOST
-ENV DB_POSTGRESDB_PORT=$PGPORT
-ENV DB_POSTGRESDB_USER=$PGUSER
-ENV DB_POSTGRESDB_PASSWORD=$PGPASSWORD
+# Устанавливаем n8n определённой версии
+ENV N8N_VERSION=1.93.0
+RUN npm install -g n8n@${N8N_VERSION} && npm cache clean --force
 
+# Открываем порт для UI n8n
+EXPOSE 5678
 
-ARG ENCRYPTION_KEY
+# Запускаем процесс от непривилегированного пользователя node
+USER node
 
-ENV N8N_ENCRYPTION_KEY=$ENCRYPTION_KEY
+# Используем tini в качестве entrypoint
+ENTRYPOINT ["tini", "--"]
 
-CMD ["n8n start"]
+# Запуск n8n по умолчанию
+CMD ["n8n"]
