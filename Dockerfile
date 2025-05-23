@@ -1,4 +1,4 @@
-FROM node:18-slim
+FROM node:18-bookworm
 
 # Устанавливаем tini (инициатор) для корректной обработки сигналов и процессов
 RUN apt-get update && apt-get install -y --no-install-recommends tini && apt-get clean && rm -rf /var/lib/apt/lists/*
