@@ -17,7 +17,7 @@ RUN apt-get update && \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Установка n8n
-ENV N8N_VERSION=1.93.0
+ENV N8N_VERSION=2.1.4
 RUN npm install -g n8n@${N8N_VERSION} && npm cache clean --force
 
 # Рабочая директория для установки Telepilot
